@@ -2,16 +2,14 @@ package com.beyond.cqrs.product.command.application.Controller;
 
 import com.beyond.cqrs.common.dto.ApiResponse;
 import com.beyond.cqrs.product.command.application.dto.request.ProductCreateRequest;
+import com.beyond.cqrs.product.command.application.dto.request.ProductUpdateRequest;
 import com.beyond.cqrs.product.command.application.dto.response.ProductCommandResponse;
 import com.beyond.cqrs.product.command.application.service.ProductCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /* 데이터 변경 명령 담당 (Command Side) */
@@ -42,6 +40,32 @@ public class ProductCommandController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.success(response));
   }
+
+  /* 상품 수정 */
+  @PutMapping("/products/{productCode}")
+  public ResponseEntity<ApiResponse<Void>> updateProduct(
+      @PathVariable("productCode") Long productCode,
+      @RequestPart @Validated ProductUpdateRequest productUpdateRequest,
+      @RequestPart(required = false) MultipartFile productImg // 필수 아님을 명시
+      ){
+
+    productCommandService.updateProduct(productCode, productUpdateRequest, productImg);
+
+    return ResponseEntity.ok(ApiResponse.success(null));
+
+  }
+
+  @DeleteMapping("/products/{productCode}")
+  public ResponseEntity<ApiResponse<Void>> deleteProduct(
+      @PathVariable("productCode") Long productCode
+  ){
+    productCommandService.deleteProduct(productCode);
+
+    return ResponseEntity
+        .status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(null));
+  }
+
 
 
 }
